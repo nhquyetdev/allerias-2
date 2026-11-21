@@ -512,7 +512,7 @@ function startBoss(i) {
   P.x = W / 2; P.y = 780; P.rev = 0; P.revWarn = 0; P.shotT = 0; P.maxHp = D.maxHp; P.hp = P.maxHp; P.sinceHit = 9; P.hitT = 0; G.slowLeft = 0; G.slowCd = 0;
   army = i >= 3 ? { on: false, t: 3.5, name: '' } : null;
   G.state = 'intro'; G.introT = 0;
-  bnr = { t: 0, dur: 3.2, title: 'BOSS ' + i + ' / 6', name: def.name, sub: def.hint };
+  bnr = { t: 0, dur: 3.2, title: 'BOSS ' + i, name: def.name, sub: def.hint };
   hideAll(); music(i);
 }
 function hideAll() { document.querySelectorAll('.scr').forEach(s => s.classList.remove('on')); }
@@ -682,7 +682,7 @@ function updateWorld(dt, live) {
     const b = blasts[i]; b.t += dt;
     if (b.t >= b.warn && !b.on) { b.on = true; sfx('boom'); burst(b.x, b.y, 14, ['#ff6b3a', '#ffd54d', '#fff'], 220, .5); G.shake = Math.max(G.shake, .18); }
     if (b.t >= b.warn + b.dur) { blasts.splice(i, 1); continue; }
-    if (live && b.on && Math.hypot(b.x - P.x, b.y - P.y) < b.r + P.hr && !b.hit) { b.hit = true; hurt(5, 'blast'); }
+    if (live && b.on && Math.hypot(b.x - P.x, b.y - P.y) < b.r + P.hr && !b.hit) { b.hit = true; hurt(11, 'blast'); }
   }
   // purge zones
   for (let i = purges.length - 1; i >= 0; i--) {
@@ -765,7 +765,7 @@ function drawHUD() {
   ctx.fillStyle = B.shield > 0 ? '#4de1ff' : g; ctx.fillRect(30, 40, 480 * k, 16);
   ctx.strokeStyle = B.shield > 0 ? '#4de1ff' : '#fff'; ctx.lineWidth = 2; ctx.strokeRect(28, 38, 484, 20);
   text(fmtInt(Math.max(0, B.hp)) + (B.shield > 0 ? '  [SHIELD ' + B.shield.toFixed(0) + 's]' : ''), W / 2, 48, '#fff', 12, 'Consolas, monospace', true);
-  text('BOSS ' + G.bossIdx + '/6', 30, 76, '#9b93d6', 15, 'Consolas, monospace', true, 'left');
+  text('BOSS ' + G.bossIdx, 30, 76, '#9b93d6', 15, 'Consolas, monospace', true, 'left');
   text('TIME ' + fmtTime(G.runMs), W - 30, 76, '#fff', 17, 'Consolas, monospace', true, 'right');
   text('Lv.' + P.lv + '  ' + P.name, 14, H - 16, '#ffd54d', 14, 'Consolas, monospace', true, 'left');
   { const hk = clamp(P.hp / P.maxHp, 0, 1); ctx.fillStyle = '#220a14'; ctx.fillRect(14, H - 68, 250, 14);
@@ -912,7 +912,7 @@ function showOver() {
   const win = G.win;
   $('ov-title').textContent = win ? 'THE JOURNEY CONTINUES…' : 'BANNED!'; $('ov-title').style.color = win ? '#ffd54d' : '#ff5c5c'; $('ov-title').style.fontSize = win ? '34px' : '46px';
   $('ov-sub').innerHTML = win ? 'You beat everything the server threw at you.' : 'Quote of the day:';
-  $('ov-stats').innerHTML = 'Bosses cleared: <span class="gold">' + G.cleared + '/6</span><br>' + (G.cleared ? 'Time at last clear: <span class="gold">' + fmtTime(G.clearMs) + '</span>' : 'No boss cleared');
+  $('ov-stats').innerHTML = 'Bosses cleared: <span class="gold">' + G.cleared + '</span><br>' + (G.cleared ? 'Time at last clear: <span class="gold">' + fmtTime(G.clearMs) + '</span>' : 'No boss cleared');
   const can = G.cleared >= 1 && !G.noLB;
   $('ov-reg').style.display = can ? 'flex' : 'none'; $('ov-name').value = lsGet('a2_name', 'AhLeeRias'); $('ov-submit').disabled = false;
   $('ov-msg').textContent = G.noLB ? 'Test mode (?boss=) — scores are not submitted.' : !G.cleared ? 'Clear at least 1 boss to register on the leaderboard.' : '';
@@ -951,7 +951,7 @@ async function openLB(from) {
   try {
     const { rows, local } = await lbFetch();
     if (!rows.length) { list.innerHTML = '<div class="sub" style="padding:20px;text-align:center">No scores yet. Be the first!</div>'; return; }
-    list.innerHTML = rows.map((r, i) => '<div class="lbr' + (r.id === lastSubmitId ? ' me' : '') + '"><span class="rk">' + (i + 1) + '</span><span class="nm">' + String(r.name).replace(/[<>&"]/g, '') + '</span><span class="bs">' + (r.boss >= 6 ? '★ 6/6' : r.boss + '/6') + '</span><span class="tm">' + fmtTime(r.time) + '</span></div>').join('');
+    list.innerHTML = rows.map((r, i) => '<div class="lbr' + (r.id === lastSubmitId ? ' me' : '') + '"><span class="rk">' + (i + 1) + '</span><span class="nm">' + String(r.name).replace(/[<>&"]/g, '') + '</span><span class="bs">' + (r.boss >= 6 ? '★ 6/6' : r.boss) + '</span><span class="tm">' + fmtTime(r.time) + '</span></div>').join('');
     const me = list.querySelector('.me'); if (me) me.scrollIntoView({ block: 'center' });
   } catch (e) { list.innerHTML = '<div class="sub" style="padding:20px;text-align:center">Couldn\'t load the leaderboard.<br>Check your connection and the database URL / rules.</div>'; }
 }
