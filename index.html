@@ -605,7 +605,7 @@ function inputVec() {
   if (keys.has('a') || keys.has('arrowleft')) x--; if (keys.has('d') || keys.has('arrowright')) x++;
   if (keys.has('w') || keys.has('arrowup')) y--; if (keys.has('s') || keys.has('arrowdown')) y++;
   if (x || y) { const n = Math.hypot(x, y); return [x / n, y / n]; }
-  if (joy) { const dx = joy.x - joy.ox, dy = joy.y - joy.oy, L = Math.hypot(dx, dy); if (L > 6) { const k = Math.min(1, L / 55); return [dx / L * k, dy / L * k]; } }
+  if (joy) { const tx = (joy.x - ox) / sc, ty = (joy.y - oy) / sc - (joy.touch ? 70 : 0), dx = tx - P.x, dy = ty - P.y, L = Math.hypot(dx, dy); if (L > 3) { const k = Math.min(1, L / 14); return [dx / L * k, dy / L * k]; } }
   return [0, 0];
 }
 function updatePlayer(dt, wdt) {
@@ -832,7 +832,6 @@ function draw() {
   ctx.restore();
   // field border on PC (black bars are the "out of bounds" area)
   if (ox > 2 || oy > 2) { ctx.strokeStyle = 'rgba(255,122,217,.45)'; ctx.lineWidth = 2 / sc; ctx.strokeRect(0, 0, W, H); }
-  drawJoy();
 }
 
 /* =====================================================================
@@ -841,8 +840,7 @@ function draw() {
 addEventListener('keydown', e => { const k = e.key.toLowerCase(); if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(k) && G.state !== 'title' && !/input/i.test(e.target.tagName)) e.preventDefault(); if (/input/i.test(e.target.tagName)) return; keys.add(k); if (k === 'm') { initAudio(); setMuted(!muted); } if (k === 'f' && !e.repeat) trySlow(); });
 addEventListener('keyup', e => keys.delete(e.key.toLowerCase()));
 addEventListener('blur', () => { keys.clear(); joy = null; });
-canvas.addEventListener('pointerdown', e => { e.preventDefault(); if (G.state !== 'intro' && G.state !== 'fight' && G.state !== 'bossdead') return; if (!joy) { canvas.setPointerCapture(e.pointerId); joy = { id: e.pointerId, ox: e.clientX, oy: e.clientY, x: e.clientX, y: e.clientY }; } });
-canvas.addEventListener('pointermove', e => { if (joy && joy.id === e.pointerId) { joy.x = e.clientX; joy.y = e.clientY; } });
+canvas.addEventListener('pointerdown', e => { e.preventDefault(); if (G.state !== 'intro' && G.state !== 'fight' && G.state !== 'bossdead') return; if (!joy) { canvas.setPointerCapture(e.pointerId); joy = { id: e.pointerId, x: e.clientX, y: e.clientY, touch: e.pointerType === 'touch' }; } });canvas.addEventListener('pointermove', e => { if (joy && joy.id === e.pointerId) { joy.x = e.clientX; joy.y = e.clientY; } });
 const endJoy = e => { if (joy && joy.id === e.pointerId) joy = null; };
 canvas.addEventListener('pointerup', endJoy); canvas.addEventListener('pointercancel', endJoy);
 addEventListener('contextmenu', e => e.preventDefault());
